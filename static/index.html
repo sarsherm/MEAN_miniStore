@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html ng-app="miniStore">
+<head>
+	<title>Mini Store</title>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.5/angular-route.min.js"></script>
+    <script>
+    	var module = angular.module("miniStore", ["ngRoute"]);
+
+    	module.config(function ($routeProvider){
+    		$routeProvider
+    		.when("/", {
+    			templateUrl:"partials/customers.html"
+    		})
+    		.when("/orders", {
+    			templateUrl:"partials/orders.html"
+    		})
+    		.otherwise({
+    			redirectTo: "/"
+    		});
+    	});
+
+    	module.factory("customerFactory", function (){
+    		var customers = [
+    			{name: "Sarah", created_at: new Date()},
+    			{name: "Colin", created_at: new Date()}
+    		];
+
+    		var factory = {};
+
+    		factory.getCustomers = function(callback){
+    			callback(customers);
+    		}
+    		factory.addCustomer = function(newCustomer){
+    			customers.push(newCustomer);
+    		}
+    		factory.removeCustomer = function(customer){
+    			customers.splice(customers.indexOf(customer), 1);
+    		}
+    		return factory;
+    	})
+
+    	module.factory("productFactory", function(){
+    		var products = [
+    			{name: "Nike shoes", quantity: 15, customers: []},
+    			{name: "Black belts", quantity: 15, customers: []},
+    			{name: "Ice cream", quantity: 15, customers: []},
+    			{name: "Candy", quantity: 15, customers: []},
+    		]
+    		var factory = {};
+    		factory.getProducts = function(callback){
+    			callback(products);
+    		}
+    		factory.addOrder = function(customer, quantity, product){
+    			 if(products[product]){
+                        if(products[product].indexOf(customer) == -1){
+                            products[product].push(customer);
+                            products.quantity = products.quantity - quantity;
+                        } 
+                    }
+    		}
+    		return factory;
+    	})
+
+    	module.controller("customersController", function($scope, customerFactory){
+    		$scope.customers = [];
+    		customerFactory.getCustomers(function(data){
+    			$scope.customers = data;
+    		})
+    		$scope.addCustomer = function(){
+    			$scope.newCustomer.created_at = new Date();
+    			newCustomer = $scope.newCustomer;
+    			customerFactory.addCustomer(newCustomer);
+    			$scope.newCustomer = {}
+    		}
+    		$scope.removeCustomer = function(customer){
+    			customerFactory.removeCustomer(customer);
+    		}
+    	})
+
+    	module.controller("ordersController", function($scope, productFactory, customerFactory){
+    		$scope.products = [];
+    		productFactory.getProducts(function(data){
+    			$scope.products = data;
+    		})
+    		$scope.customers = [];
+    		customerFactory.getCustomers(function(data){
+    			$scope.customers = data;
+    		})
+    		$scope.newOrder = function(customer, quantity, product){
+    			productFactory.addOrder(customer, quantity, product);
+    			productFactory.getProducts(function(data){
+    				$scope.products = data;
+    			})
+    		}
+    	})
+   	</script>
+</head>
+<body>
+	<div ng-app="miniStore">
+		<a href="#/">Customers</a> | <a href="#/orders">Orders</a>
+		<div ng-view>
+
+		</div>
+	</div>
+</body>
+</html>

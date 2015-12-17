@@ -1,0 +1,11 @@
+<div ng-controller="customersController">
+	<h1>Add a new customer</h1>
+	<form>
+		Name: <input type="text" ng-model="newCustomer.name">
+		<input type="submit" value="Add customer" ng-click="addCustomer()"
+	</form>
+	<input type="text" value="Search Customers" ng-model="search">
+	<div ng-repeat="customer in customers | filter:search | orderBy:'created_at'">
+		{{customer.name}} {{customer.created_at | date: "yyyy-MM-dd"}} <button ng-click="removeCustomer(customer)">Delete</button>
+	</div>
+</div>
